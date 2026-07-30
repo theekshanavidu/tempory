@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced A/L 2026 Study Planner Pro</title>
+    <title>Advanced A/L 2026 Study Planner Pro (Cloud Sync)</title>
     <style>
         :root {
             --bg-main: #0b0f19;
@@ -14,7 +14,6 @@
             --border: #263346;
             --success: #10b981;
             --danger: #ef4444;
-            --warning: #f59e0b;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -23,10 +22,7 @@
             margin: 0;
             padding: 20px;
         }
-        .container {
-            max-width: 1500px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1500px; margin: 0 auto; }
         .header {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             border: 1px solid var(--border);
@@ -40,16 +36,22 @@
             flex-wrap: wrap;
             gap: 15px;
         }
-        h1 {
-            margin: 0 0 6px 0;
-            color: #60a5fa;
-            font-size: 22px;
+        h1 { margin: 0 0 6px 0; color: #60a5fa; font-size: 22px; }
+        p { margin: 0; color: var(--text-sub); font-size: 13px; }
+        
+        .cloud-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--success);
+            color: #34d399;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
         }
-        p {
-            margin: 0;
-            color: var(--text-sub);
-            font-size: 13px;
-        }
+
         .controls {
             display: flex;
             align-items: center;
@@ -70,7 +72,7 @@
             cursor: pointer;
             outline: none;
         }
-        /* PROGRESS BARS GRID */
+
         .progress-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -83,38 +85,17 @@
             border-radius: 10px;
             padding: 12px 16px;
         }
-        .prog-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            font-weight: bold;
-            margin-bottom: 6px;
-        }
-        .prog-bar-bg {
-            background: #0f172a;
-            height: 10px;
-            border-radius: 5px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-        }
-        .prog-bar-fill {
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
+        .prog-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; margin-bottom: 6px; }
+        .prog-bar-bg { background: #0f172a; height: 10px; border-radius: 5px; overflow: hidden; border: 1px solid var(--border); }
+        .prog-bar-fill { height: 100%; width: 0%; transition: width 0.3s ease; }
         .fill-all { background: linear-gradient(90deg, #3b82f6, #10b981); }
         .fill-maths { background: #3b82f6; }
         .fill-physics { background: #10b981; }
         .fill-chem { background: #ef4444; }
 
-        .layout {
-            display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: 20px;
-        }
-        @media (max-width: 1024px) {
-            .layout { grid-template-columns: 1fr; }
-        }
+        .layout { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+        @media (max-width: 1024px) { .layout { grid-template-columns: 1fr; } }
+        
         .card {
             background-color: var(--card-bg);
             border-radius: 10px;
@@ -122,34 +103,13 @@
             padding: 16px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .card-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #38bdf8;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px 8px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-            font-size: 13px;
-        }
-        th {
-            background-color: #0f172a;
-            color: #94a3b8;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: 0.5px;
-        }
-        .day-select {
+        .card-title { font-size: 16px; font-weight: bold; color: #38bdf8; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+        th { background-color: #0f172a; color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 11px; }
+        
+        .day-select, .id-input, .time-input {
             background: #0f172a;
             color: #f8fafc;
             border: 1px solid var(--border);
@@ -157,124 +117,32 @@
             border-radius: 6px;
             font-size: 12px;
             outline: none;
-            width: 100%;
         }
-        .id-input {
-            width: 48px;
-            background: #0f172a;
-            border: 1px solid var(--accent);
-            color: #f8fafc;
-            text-align: center;
-            padding: 6px;
-            border-radius: 6px;
-            font-weight: bold;
-            outline: none;
-        }
-        .time-input {
-            background: #0f172a;
-            border: 1px solid var(--border);
-            color: #38bdf8;
-            padding: 5px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 13px;
-            outline: none;
-            width: 100px;
-        }
-        .time-overlap {
-            border: 1px solid var(--danger) !important;
-            background: rgba(239, 68, 68, 0.15) !important;
-        }
-        .time-input:focus, .day-select:focus {
-            border-color: var(--accent);
-        }
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-        }
+        .id-input { width: 48px; text-align: center; border-color: var(--accent); font-weight: bold; }
+        .time-input { color: #38bdf8; font-family: monospace; width: 100px; }
+        .time-overlap { border: 1px solid var(--danger) !important; background: rgba(239, 68, 68, 0.15) !important; }
+
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
         .badge-maths { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
         .badge-physics { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
         .badge-chem { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
-        .badge-off { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4); }
 
-        .completed-row {
-            opacity: 0.45;
-            text-decoration: line-through;
-        }
-        input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: var(--success);
-        }
+        .completed-row { opacity: 0.45; text-decoration: line-through; }
+        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--success); }
 
-        .video-list-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border-bottom: 1px solid var(--border);
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-        .video-list-item.used {
-            opacity: 0.35;
-            background: rgba(0,0,0,0.2);
-        }
-        .vid-num {
-            background: var(--accent);
-            color: white;
-            font-weight: bold;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            flex-shrink: 0;
-        }
-        .used .vid-num {
-            background: #475569;
-        }
-        .vid-info { flex: 1; }
-        .vid-dur { color: #38bdf8; font-family: monospace; font-size: 11px; }
+        .video-list-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid var(--border); font-size: 12px; }
+        .video-list-item.used { opacity: 0.35; background: rgba(0,0,0,0.2); }
+        .vid-num { background: var(--accent); color: white; font-weight: bold; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .used .vid-num { background: #475569; }
 
-        .btn {
-            background: #2563eb;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 12px;
-            transition: background 0.2s;
-        }
+        .btn { background: #2563eb; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
         .btn:hover { background: #1d4ed8; }
         .btn-add { background: #10b981; }
-        .btn-add:hover { background: #059669; }
-        .btn-reset { background: #ef4444; }
-        .btn-reset:hover { background: #dc2626; }
         .btn-del { background: #dc2626; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; border:none; }
-        .btn-shift { background: #334155; color: white; padding: 3px 6px; border-radius: 4px; font-size: 11px; cursor: pointer; border:none; margin: 0 1px; }
-        .btn-shift:hover { background: #475569; }
+        .btn-shift { background: #334155; color: white; padding: 3px 6px; border-radius: 4px; font-size: 11px; cursor: pointer; border:none; }
 
         .toast-msg {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--danger);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            display: none;
-            z-index: 1000;
+            position: fixed; bottom: 20px; right: 20px; background: var(--danger); color: white; padding: 12px 20px; border-radius: 8px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.4); display: none; z-index: 1000;
         }
     </style>
 </head>
@@ -282,8 +150,11 @@
     <div class="container">
         <div class="header">
             <div>
-                <h1>⚡ Advanced Study Planner Pro (A/L 2026)</h1>
-                <p>Duplicate Prevention, Time Collision Warning, Auto Date Sorting, & Subject-Wise Progress Tracking</p>
+                <h1>⚡ Advanced Study Planner Pro (Firebase Cloud)</h1>
+                <p>Auto-Sync with Firestore Collection: <code>user_theek</code></p>
+            </div>
+            <div class="cloud-badge" id="cloud-status">
+                🟢 Firebase Connected
             </div>
             <div class="controls">
                 <label style="font-size:13px; font-weight:bold;">Speed:</label>
@@ -293,87 +164,109 @@
                     <option value="1.5">1.5x Speed</option>
                 </select>
                 <button class="btn btn-add" onclick="addRow()">➕ පේළියක් එකතු කරන්න</button>
-                <button class="btn" onclick="sortRowsManually()" style="background:#8b5cf6;">↕️ දින අනුපිළිවෙලට Sort කරන්න</button>
-                <button class="btn btn-reset" onclick="clearPlanner()">🗑️ ඔක්කොම හිස් කරන්න</button>
+                <button class="btn" onclick="sortRowsManually()" style="background:#8b5cf6;">↕️ Sort</button>
             </div>
         </div>
 
-        <!-- SUBJECT WISE PROGRESS TRACKERS -->
+        <!-- PROGRESS GRID -->
         <div class="progress-grid">
             <div class="prog-card">
-                <div class="prog-header">
-                    <span>🎯 සමස්ත ප්‍රගතිය (All Subjects)</span>
-                    <span id="prog-all-text" style="color:#60a5fa;">0 / 19</span>
-                </div>
+                <div class="prog-header"><span>🎯 සමස්ත ප්‍රගතිය</span><span id="prog-all-text" style="color:#60a5fa;">0 / 19</span></div>
                 <div class="prog-bar-bg"><div class="prog-bar-fill fill-all" id="prog-all-bar"></div></div>
             </div>
             <div class="prog-card">
-                <div class="prog-header">
-                    <span>📐 Combined Maths</span>
-                    <span id="prog-maths-text" style="color:#60a5fa;">0 / 11</span>
-                </div>
+                <div class="prog-header"><span>📐 Combined Maths</span><span id="prog-maths-text" style="color:#60a5fa;">0 / 11</span></div>
                 <div class="prog-bar-bg"><div class="prog-bar-fill fill-maths" id="prog-maths-bar"></div></div>
             </div>
             <div class="prog-card">
-                <div class="prog-header">
-                    <span>⚛️ Physics</span>
-                    <span id="prog-physics-text" style="color:#34d399;">0 / 3</span>
-                </div>
+                <div class="prog-header"><span>⚛️ Physics</span><span id="prog-physics-text" style="color:#34d399;">0 / 3</span></div>
                 <div class="prog-bar-bg"><div class="prog-bar-fill fill-physics" id="prog-physics-bar"></div></div>
             </div>
             <div class="prog-card">
-                <div class="prog-header">
-                    <span>🧪 Chemistry</span>
-                    <span id="prog-chem-text" style="color:#f87171;">0 / 5</span>
-                </div>
+                <div class="prog-header"><span>🧪 Chemistry</span><span id="prog-chem-text" style="color:#f87171;">0 / 5</span></div>
                 <div class="prog-bar-bg"><div class="prog-bar-fill fill-chem" id="prog-chem-bar"></div></div>
             </div>
         </div>
 
         <div class="layout">
-            <!-- LEFT: TIMETABLE -->
             <div class="card">
                 <div class="card-title">
-                    <span>📅 අධ්‍යයන කාලසටහන (Timetable)</span>
-                    <span style="font-size: 12px; color: var(--text-sub);">Auto Save & Validate Active</span>
+                    <span>📅 අධ්‍යයන කාලසටහන</span>
+                    <span style="font-size: 12px; color: #10b981;" id="save-indicator">Cloud Live Sync</span>
                 </div>
                 <table>
                     <thead>
                         <tr>
                             <th style="width: 35px; text-align:center;">Done</th>
-                            <th style="width: 165px;">දිනය (Date)</th>
+                            <th style="width: 165px;">දිනය</th>
                             <th style="width: 50px;">ID</th>
                             <th>විෂය / වීඩියෝ මාතෘකාව</th>
                             <th style="width: 95px;">ආරම්භය</th>
                             <th style="width: 95px;">අවසානය</th>
                             <th style="width: 70px;">කාලය</th>
-                            <th style="width: 70px; text-align:center;">Shift / Action</th>
+                            <th style="width: 70px; text-align:center;">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="timetable-body">
-                    </tbody>
+                    <tbody id="timetable-body"></tbody>
                 </table>
             </div>
 
-            <!-- RIGHT: VIDEO REFERENCE LIST -->
             <div class="card" style="max-height: 85vh; overflow-y: auto;">
-                <div class="card-title">
-                    <span>📌 වීඩියෝ අංක ලැයිස්තුව (Video List)</span>
-                    <span style="font-size:11px; color:#94a3b8;">1 සිට 19 දක්වා</span>
-                </div>
-                <div id="video-reference-list">
-                </div>
+                <div class="card-title"><span>📌 වීඩියෝ අංක ලැයිස්තුව</span></div>
+                <div id="video-reference-list"></div>
             </div>
         </div>
     </div>
 
     <div class="toast-msg" id="toast"></div>
 
-    <script>
-        const videos = [{"id": 1, "title": "Combined Maths Revision රාමු සැකිලි", "subject": "Combined Maths", "dur_str": "04:09:51", "dur_sec": 14991}, {"id": 2, "title": "දෛශික", "subject": "Combined Maths", "dur_str": "04:12:06", "dur_sec": 15126}, {"id": 3, "title": "දෛශික පසුගිය විභාග රචනා ප්‍රශ්න සාකඡ්ඡාව", "subject": "Combined Maths", "dur_str": "02:31:16", "dur_sec": 9076}, {"id": 4, "title": "සන්ධි කළ දඩු", "subject": "Combined Maths", "dur_str": "04:08:14", "dur_sec": 14894}, {"id": 5, "title": "Combined Maths Rapid Revision (සීමාව / අභ්‍යුහන)", "subject": "Combined Maths", "dur_str": "03:34:33", "dur_sec": 12873}, {"id": 6, "title": "ද්විපද ප්‍රසාරණය 02 කොටස සහ ගෝල ගැටුම්", "subject": "Combined Maths", "dur_str": "03:38:42", "dur_sec": 13122}, {"id": 7, "title": "ගණිත අභ්‍යුහන මුලධර්මය 2 කොටස බල සමතුලිතතාවය", "subject": "Combined Maths", "dur_str": "03:59:41", "dur_sec": 14381}, {"id": 8, "title": "R.R Day 08 | බල ඝූර්ණය කාර්යය, ශක්තිය සහ ජවය", "subject": "Combined Maths", "dur_str": "03:41:43", "dur_sec": 13303}, {"id": 9, "title": "R.R Day 10 | නිව්ටන් නියම", "subject": "Combined Maths", "dur_str": "03:35:57", "dur_sec": 12957}, {"id": 10, "title": "R.R Day 14 | වෘත්ත චලිතය", "subject": "Combined Maths", "dur_str": "03:21:55", "dur_sec": 12115}, {"id": 11, "title": "R.R Day 13 | ශේෂ ප්‍රමේයය සහ සාධක ප්‍රමේයය", "subject": "Combined Maths", "dur_str": "03:05:01", "dur_sec": 11101}, {"id": 12, "title": "🔴 තාපය GUESS DAY 2026 | ANURADHA PERERA", "subject": "Physics", "dur_str": "07:03:06", "dur_sec": 25386}, {"id": 13, "title": "ක්ශේත්‍ර GUESS DAY 2026 | ANURADHA PERERA", "subject": "Physics", "dur_str": "04:31:19", "dur_sec": 16279}, {"id": 14, "title": "යාන්ත්‍ර විද්‍යාව GUESS DAY 2026 | ANURADHA PERERA", "subject": "Physics", "dur_str": "05:22:40", "dur_sec": 19360}, {"id": 15, "title": "2026 Physical Chemistry Day | Amila Dasanayake", "subject": "Chemistry", "dur_str": "09:41:22", "dur_sec": 34882}, {"id": 16, "title": "QBT - 3 වන ව්‍යූහගත රචනා ප්‍රශ්නය සදහා විශේෂ පුහුණුව", "subject": "Chemistry", "dur_str": "05:39:53", "dur_sec": 20393}, {"id": 17, "title": "QBT - ව්‍යුහගත රචනා 2 වන ප්‍රශ්නය සඳහා පුහුණුව", "subject": "Chemistry", "dur_str": "02:07:23", "dur_sec": 7643}, {"id": 18, "title": "2026 One Last Time | Organic නැවත මතක් කිරීම", "subject": "Chemistry", "dur_str": "09:05:23", "dur_sec": 32723}, {"id": 19, "title": "2026 One Last Time ආරම්භය | Amila Dasanayake", "subject": "Chemistry", "dur_str": "05:10:38", "dur_sec": 18638}];
-        const presetData = [{"day": "අද - බ්‍රහස්පතින්දා (ජූලි 30)", "video_id": "14", "start": "20:00", "done": false}, {"day": "සිකුරාදා (ජූලි 31)", "video_id": "17", "start": "20:00", "done": false}, {"day": "සිකුරාදා (ජූලි 31)", "video_id": "5", "start": "22:30", "done": false}, {"day": "සෙනසුරාදා (අගෝ 01)", "video_id": "15", "start": "07:00", "done": false}, {"day": "සෙනසුරාදා (අගෝ 01)", "video_id": "10", "start": "04:00", "done": false}, {"day": "සෙනසුරාදා (අගෝ 01)", "video_id": "11", "start": "19:00", "done": false}];
+    <!-- FIREBASE SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-        const daysList = [
+        const firebaseConfig = {
+            apiKey: "AIzaSyABk0G1ax3IB4ZbNggrEVKZI1TOwEOzSkY",
+            authDomain: "temp-81ca8.firebaseapp.com",
+            projectId: "temp-81ca8",
+            storageBucket: "temp-81ca8.firebasestorage.app",
+            messagingSenderId: "1004912755574",
+            appId: "1:1004912755574:web:bd8b69ee4b40b4082ef057",
+            measurementId: "G-7XDL1MTLJF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        // Firestore Reference: Collection 'user_theek' -> Document 'planner_data'
+        const docRef = doc(db, "user_theek", "planner_data");
+
+        // Videos Database
+        window.videos = [
+            {"id": 1, "title": "Combined Maths Revision රාමු සැකිලි", "subject": "Combined Maths", "dur_str": "04:09:51", "dur_sec": 14991},
+            {"id": 2, "title": "දෛශික", "subject": "Combined Maths", "dur_str": "04:12:06", "dur_sec": 15126},
+            {"id": 3, "title": "දෛශික පසුගිය විභාග රචනා ප්‍රශ්න සාකඡ්ඡාව", "subject": "Combined Maths", "dur_str": "02:31:16", "dur_sec": 9076},
+            {"id": 4, "title": "සන්ධි කළ දඩු", "subject": "Combined Maths", "dur_str": "04:08:14", "dur_sec": 14894},
+            {"id": 5, "title": "Combined Maths Rapid Revision (සීමාව / අභ්‍යුහන)", "subject": "Combined Maths", "dur_str": "03:34:33", "dur_sec": 12873},
+            {"id": 6, "title": "ද්විපද ප්‍රසාරණය 02 කොටස සහ ගෝල ගැටුම්", "subject": "Combined Maths", "dur_str": "03:38:42", "dur_sec": 13122},
+            {"id": 7, "title": "ගණිත අභ්‍යුහන මුලධර්මය 2 කොටස බල සමතුලිතතාවය", "subject": "Combined Maths", "dur_str": "03:59:41", "dur_sec": 14381},
+            {"id": 8, "title": "R.R Day 08 | බල ඝූර්ණය කාර්යය, ශක්තිය සහ ජවය", "subject": "Combined Maths", "dur_str": "03:41:43", "dur_sec": 13303},
+            {"id": 9, "title": "R.R Day 10 | නිව්ටන් නියම", "subject": "Combined Maths", "dur_str": "03:35:57", "dur_sec": 12957},
+            {"id": 10, "title": "R.R Day 14 | වෘත්ත චලිතය", "subject": "Combined Maths", "dur_str": "03:21:55", "dur_sec": 12115},
+            {"id": 11, "title": "R.R Day 13 | ශේෂ ප්‍රමේයය සහ සාධක ප්‍රමේයය", "subject": "Combined Maths", "dur_str": "03:05:01", "dur_sec": 11101},
+            {"id": 12, "title": "🔴 තාපය GUESS DAY 2026 | ANURADHA PERERA", "subject": "Physics", "dur_str": "07:03:06", "dur_sec": 25386},
+            {"id": 13, "title": "ක්ශේත්‍ර GUESS DAY 2026 | ANURADHA PERERA", "subject": "Physics", "dur_str": "04:31:19", "dur_sec": 16279},
+            {"id": 14, "title": "යාන්ත්‍ර විද්‍යාව GUESS DAY 2026 | ANURADHA PERERA", "subject": "Physics", "dur_str": "05:22:40", "dur_sec": 19360},
+            {"id": 15, "title": "2026 Physical Chemistry Day | Amila Dasanayake", "subject": "Chemistry", "dur_str": "09:41:22", "dur_sec": 34882},
+            {"id": 16, "title": "QBT - 3 වන ව්‍යූහගත රචනා ප්‍රශ්නය සදහා විශේෂ පුහුණුව", "subject": "Chemistry", "dur_str": "05:39:53", "dur_sec": 20393},
+            {"id": 17, "title": "QBT - ව්‍යුහගත රචනා 2 වන ප්‍රශ්නය සඳහා පුහුණුව", "subject": "Chemistry", "dur_str": "02:07:23", "dur_sec": 7643},
+            {"id": 18, "title": "2026 One Last Time | Organic නැවත මතක් කිරීම", "subject": "Chemistry", "dur_str": "09:05:23", "dur_sec": 32723},
+            {"id": 19, "title": "2026 One Last Time ආරම්භය | Amila Dasanayake", "subject": "Chemistry", "dur_str": "05:10:38", "dur_sec": 18638}
+        ];
+
+        window.daysList = [
             "අද - බ්‍රහස්පතින්දා (ජූලි 30)",
             "සිකුරාදා (ජූලි 31)",
             "සෙනසුරාදා (අගෝ 01)",
@@ -385,21 +278,47 @@
             "ඊළඟ සිකුරාදා (අගෝ 07)"
         ];
 
+        window.plannerSlots = [];
+
+        // Save Data to Firebase Firestore
+        window.saveToFirestore = async function() {
+            try {
+                document.getElementById('save-indicator').innerText = 'Saving...';
+                await setDoc(docRef, { slots: window.plannerSlots });
+                document.getElementById('save-indicator').innerText = 'Cloud Saved ✔️';
+            } catch (e) {
+                console.error("Error saving doc: ", e);
+                document.getElementById('save-indicator').innerText = 'Save Error ⚠️';
+            }
+        };
+
+        // Realtime Listener from Firebase
+        onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                window.plannerSlots = docSnap.data().slots || [];
+            } else {
+                // Default initial setup
+                window.plannerSlots = [
+                    {"day": "අද - බ්‍රහස්පතින්දා (ජූලි 30)", "video_id": "14", "start": "20:00", "done": false},
+                    {"day": "සිකුරාදා (ජූලි 31)", "video_id": "17", "start": "20:00", "done": false},
+                    {"day": "සිකුරාදා (ජූලි 31)", "video_id": "5", "start": "22:30", "done": false},
+                    {"day": "සෙනසුරාදා (අගෝ 01)", "video_id": "15", "start": "07:00", "done": false},
+                    {"day": "සෙනසුරාදා (අගෝ 01)", "video_id": "10", "start": "04:00", "done": false},
+                    {"day": "සෙනසුරාදා (අගෝ 01)", "video_id": "11", "start": "19:00", "done": false}
+                ];
+                window.saveToFirestore();
+            }
+            window.renderTimetable();
+        });
+    </script>
+
+    <!-- PLANNER APPLICATION LOGIC -->
+    <script>
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.innerText = msg;
             t.style.display = 'block';
             setTimeout(() => { t.style.display = 'none'; }, 3500);
-        }
-
-        function getPlannerData() {
-            const saved = localStorage.getItem('pro_study_plan_2026_v2');
-            if (saved) return JSON.parse(saved);
-            return presetData;
-        }
-
-        function savePlannerData(data) {
-            localStorage.setItem('pro_study_plan_2026_v2', JSON.stringify(data));
         }
 
         function formatTime(totalMinutes) {
@@ -426,7 +345,7 @@
         function renderVideoList(usedVideoIds) {
             const listContainer = document.getElementById('video-reference-list');
             listContainer.innerHTML = '';
-            videos.forEach(v => {
+            window.videos.forEach(v => {
                 let badgeClass = 'badge-maths';
                 if (v.subject === 'Physics') badgeClass = 'badge-physics';
                 else if (v.subject === 'Chemistry') badgeClass = 'badge-chem';
@@ -448,27 +367,24 @@
         }
 
         function renderTimetable() {
-            const slots = getPlannerData();
+            if (!window.plannerSlots) return;
+
+            const slots = window.plannerSlots;
             const speed = parseFloat(document.getElementById('speed-select').value);
             const tbody = document.getElementById('timetable-body');
             tbody.innerHTML = '';
 
             const usedVideoIds = new Set();
-            
-            // Progress Trackers Counters
             let totalMaths = 11, doneMaths = 0;
             let totalPhysics = 3, donePhysics = 0;
             let totalChem = 5, doneChem = 0;
             let totalAll = 19, doneAll = 0;
 
-            // Track time intervals per day to prevent overlap
             const dayIntervals = {};
 
-            slots.forEach((slot, index) => {
+            slots.forEach((slot) => {
                 const vidId = parseInt(slot.video_id, 10);
-                if (!isNaN(vidId)) {
-                    usedVideoIds.add(vidId);
-                }
+                if (!isNaN(vidId)) usedVideoIds.add(vidId);
             });
 
             slots.forEach((slot, index) => {
@@ -476,7 +392,7 @@
                 if (slot.done) tr.classList.add('completed-row');
 
                 const vidId = parseInt(slot.video_id, 10);
-                const vid = videos.find(v => v.id === vidId);
+                const vid = window.videos.find(v => v.id === vidId);
 
                 let endTimeStr = '-';
                 let durStr = '-';
@@ -500,7 +416,6 @@
                         const endMins = startMins + durMinutes;
                         endTimeStr = formatTime(endMins);
 
-                        // Check Overlap for same day
                         if (!dayIntervals[slot.day]) dayIntervals[slot.day] = [];
                         for (let interval of dayIntervals[slot.day]) {
                             if (Math.max(startMins, interval.start) < Math.min(endMins, interval.end)) {
@@ -511,7 +426,6 @@
                         dayIntervals[slot.day].push({ start: startMins, end: endMins, index: index });
                     }
 
-                    // Subject Wise Progress Calculation
                     if (slot.done) {
                         doneAll++;
                         if (vid.subject === 'Combined Maths') doneMaths++;
@@ -520,7 +434,7 @@
                     }
                 }
 
-                let dayOptionsHtml = daysList.map(d => `<option value="${d}" ${slot.day === d ? 'selected' : ''}>${d}</option>`).join('');
+                let dayOptionsHtml = window.daysList.map(d => `<option value="${d}" ${slot.day === d ? 'selected' : ''}>${d}</option>`).join('');
 
                 tr.innerHTML = `
                     <td style="text-align:center;">
@@ -542,15 +456,14 @@
                     <td style="font-weight:bold; color:#38bdf8; font-family:monospace;">${endTimeStr}</td>
                     <td style="color:#94a3b8; font-family:monospace;">${durStr}</td>
                     <td style="text-align:center;">
-                        <button class="btn-shift" onclick="shiftRow(${index}, -1)" title="ඉහලට කරන්න">⬆️</button>
-                        <button class="btn-shift" onclick="shiftRow(${index}, 1)" title="පහලට කරන්න">⬇️</button>
-                        <button class="btn-del" onclick="deleteRow(${index})" title="පේළිය මකන්න">❌</button>
+                        <button class="btn-shift" onclick="shiftRow(${index}, -1)">⬆️</button>
+                        <button class="btn-shift" onclick="shiftRow(${index}, 1)">⬇️</button>
+                        <button class="btn-del" onclick="deleteRow(${index})">❌</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            // UPDATE PROGRESS BARS
             updateProgBar('prog-all', doneAll, totalAll);
             updateProgBar('prog-maths', doneMaths, totalMaths);
             updateProgBar('prog-physics', donePhysics, totalPhysics);
@@ -566,100 +479,65 @@
         }
 
         function updateSlotVideoId(index, val) {
-            const slots = getPlannerData();
             const newId = parseInt(val, 10);
-
             if (!isNaN(newId)) {
-                // Duplicate Video Check
-                const duplicateIndex = slots.findIndex((s, i) => i !== index && parseInt(s.video_id, 10) === newId);
+                const duplicateIndex = window.plannerSlots.findIndex((s, i) => i !== index && parseInt(s.video_id, 10) === newId);
                 if (duplicateIndex !== -1) {
-                    showToast(`⚠️ Video ID #${newId} එක මේ වන විටත් වෙනත් දිනයක ඇතුළත් කර ඇත! එකම වීඩියෝව දෙපාරක් ඇතුළත් කළ නොහැක.`);
+                    showToast(`⚠️ Video ID #${newId} එක වෙනත් පේළියක ඇත!`);
                     renderTimetable();
                     return;
                 }
             }
-
-            slots[index].video_id = val;
-            savePlannerData(slots);
-            renderTimetable();
+            window.plannerSlots[index].video_id = val;
+            window.saveToFirestore();
         }
 
         function updateSlotTime(index, val) {
-            const slots = getPlannerData();
-            slots[index].start = val;
-            savePlannerData(slots);
-            renderTimetable();
+            window.plannerSlots[index].start = val;
+            window.saveToFirestore();
         }
 
         function updateSlotDay(index, val) {
-            const slots = getPlannerData();
-            slots[index].day = val;
-
-            // Auto Sort by Date Index after day change
-            slots.sort((a, b) => {
-                return daysList.indexOf(a.day) - daysList.indexOf(b.day);
-            });
-
-            savePlannerData(slots);
-            renderTimetable();
+            window.plannerSlots[index].day = val;
+            window.plannerSlots.sort((a, b) => window.daysList.indexOf(a.day) - window.daysList.indexOf(b.day));
+            window.saveToFirestore();
         }
 
         function updateSlot(index, field, val) {
-            const slots = getPlannerData();
-            slots[index][field] = val;
-            savePlannerData(slots);
-            renderTimetable();
+            window.plannerSlots[index][field] = val;
+            window.saveToFirestore();
         }
 
         function shiftRow(index, direction) {
-            const slots = getPlannerData();
             const newIndex = index + direction;
-            if (newIndex < 0 || newIndex >= slots.length) return;
-            
-            const temp = slots[index];
-            slots[index] = slots[newIndex];
-            slots[newIndex] = temp;
-
-            savePlannerData(slots);
-            renderTimetable();
+            if (newIndex < 0 || newIndex >= window.plannerSlots.length) return;
+            const temp = window.plannerSlots[index];
+            window.plannerSlots[index] = window.plannerSlots[newIndex];
+            window.plannerSlots[newIndex] = temp;
+            window.saveToFirestore();
         }
 
         function sortRowsManually() {
-            const slots = getPlannerData();
-            slots.sort((a, b) => {
-                const dayDiff = daysList.indexOf(a.day) - daysList.indexOf(b.day);
+            window.plannerSlots.sort((a, b) => {
+                const dayDiff = window.daysList.indexOf(a.day) - window.daysList.indexOf(b.day);
                 if (dayDiff !== 0) return dayDiff;
                 const timeA = parseStartTime(a.start) || 0;
                 const timeB = parseStartTime(b.start) || 0;
                 return timeA - timeB;
             });
-            savePlannerData(slots);
-            renderTimetable();
+            window.saveToFirestore();
             showToast("✅ දින සහ වෙලාවන් අනුපිළිවෙලට පේළි සැකසිණි!");
         }
 
         function addRow() {
-            const slots = getPlannerData();
-            slots.push({ day: daysList[0], video_id: "", start: "", done: false });
-            savePlannerData(slots);
-            renderTimetable();
+            window.plannerSlots.push({ day: window.daysList[0], video_id: "", start: "", done: false });
+            window.saveToFirestore();
         }
 
         function deleteRow(index) {
-            const slots = getPlannerData();
-            slots.splice(index, 1);
-            savePlannerData(slots);
-            renderTimetable();
+            window.plannerSlots.splice(index, 1);
+            window.saveToFirestore();
         }
-
-        function clearPlanner() {
-            if (confirm('සියලුම ඇතුළත් කිරීම් හිස් කර මුල සිටම සකස් කිරීමට අවශ්‍යද?')) {
-                savePlannerData([]);
-                renderTimetable();
-            }
-        }
-
-        renderTimetable();
     </script>
 </body>
 </html>
