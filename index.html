@@ -240,10 +240,8 @@
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
 
-        // Firestore Reference: Collection 'user_theek' -> Document 'planner_data'
         const docRef = doc(db, "user_theek", "planner_data");
 
-        // Videos Database
         window.videos = [
             {"id": 1, "title": "Combined Maths Revision රාමු සැකිලි", "subject": "Combined Maths", "dur_str": "04:09:51", "dur_sec": 14991},
             {"id": 2, "title": "දෛශික", "subject": "Combined Maths", "dur_str": "04:12:06", "dur_sec": 15126},
@@ -280,7 +278,6 @@
 
         window.plannerSlots = [];
 
-        // Save Data to Firebase Firestore
         window.saveToFirestore = async function() {
             try {
                 document.getElementById('save-indicator').innerText = 'Saving...';
@@ -292,12 +289,10 @@
             }
         };
 
-        // Realtime Listener from Firebase
         onSnapshot(docRef, (docSnap) => {
             if (docSnap.exists()) {
                 window.plannerSlots = docSnap.data().slots || [];
             } else {
-                // Default initial setup
                 window.plannerSlots = [
                     {"day": "අද - බ්‍රහස්පතින්දා (ජූලි 30)", "video_id": "14", "start": "20:00", "done": false},
                     {"day": "සිකුරාදා (ජූලි 31)", "video_id": "17", "start": "20:00", "done": false},
@@ -489,22 +484,26 @@
                 }
             }
             window.plannerSlots[index].video_id = val;
+            renderTimetable();
             window.saveToFirestore();
         }
 
         function updateSlotTime(index, val) {
             window.plannerSlots[index].start = val;
+            renderTimetable();
             window.saveToFirestore();
         }
 
         function updateSlotDay(index, val) {
             window.plannerSlots[index].day = val;
             window.plannerSlots.sort((a, b) => window.daysList.indexOf(a.day) - window.daysList.indexOf(b.day));
+            renderTimetable();
             window.saveToFirestore();
         }
 
         function updateSlot(index, field, val) {
             window.plannerSlots[index][field] = val;
+            renderTimetable();
             window.saveToFirestore();
         }
 
@@ -514,6 +513,7 @@
             const temp = window.plannerSlots[index];
             window.plannerSlots[index] = window.plannerSlots[newIndex];
             window.plannerSlots[newIndex] = temp;
+            renderTimetable();
             window.saveToFirestore();
         }
 
@@ -525,17 +525,20 @@
                 const timeB = parseStartTime(b.start) || 0;
                 return timeA - timeB;
             });
+            renderTimetable();
             window.saveToFirestore();
             showToast("✅ දින සහ වෙලාවන් අනුපිළිවෙලට පේළි සැකසිණි!");
         }
 
         function addRow() {
             window.plannerSlots.push({ day: window.daysList[0], video_id: "", start: "", done: false });
+            renderTimetable();
             window.saveToFirestore();
         }
 
         function deleteRow(index) {
             window.plannerSlots.splice(index, 1);
+            renderTimetable();
             window.saveToFirestore();
         }
     </script>
