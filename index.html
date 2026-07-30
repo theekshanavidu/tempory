@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fully Customizable Study Planner (A/L 2026)</title>
+    <title>Advanced A/L 2026 Study Planner Pro</title>
     <style>
         :root {
-            --bg-main: #0f172a;
-            --card-bg: #1e293b;
+            --bg-main: #0b0f19;
+            --card-bg: #151d2a;
             --accent: #3b82f6;
             --text-main: #f8fafc;
             --text-sub: #94a3b8;
-            --border: #334155;
+            --border: #263346;
             --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -22,7 +24,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 1450px;
+            max-width: 1500px;
             margin: 0 auto;
         }
         .header {
@@ -51,47 +53,60 @@
         .controls {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             background: #0f172a;
             padding: 10px 16px;
             border-radius: 8px;
             border: 1px solid var(--border);
+            flex-wrap: wrap;
         }
         .speed-select {
             background: #1e293b;
             color: #60a5fa;
             border: 1px solid var(--accent);
-            padding: 6px 12px;
+            padding: 6px 10px;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
             outline: none;
         }
-        .progress-container {
-            width: 100%;
-            background: #0f172a;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px 18px;
+        /* PROGRESS BARS GRID */
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
             margin-bottom: 20px;
+        }
+        .prog-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 16px;
+        }
+        .prog-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
         }
-        .progress-bar-bg {
-            flex: 1;
-            background: #334155;
-            height: 12px;
-            border-radius: 6px;
+        .prog-bar-bg {
+            background: #0f172a;
+            height: 10px;
+            border-radius: 5px;
             overflow: hidden;
+            border: 1px solid var(--border);
         }
-        .progress-bar-fill {
-            background: linear-gradient(90deg, #3b82f6, #10b981);
+        .prog-bar-fill {
             height: 100%;
             width: 0%;
             transition: width 0.3s ease;
         }
+        .fill-all { background: linear-gradient(90deg, #3b82f6, #10b981); }
+        .fill-maths { background: #3b82f6; }
+        .fill-physics { background: #10b981; }
+        .fill-chem { background: #ef4444; }
+
         .layout {
             display: grid;
             grid-template-columns: 1fr 380px;
@@ -166,6 +181,10 @@
             outline: none;
             width: 100px;
         }
+        .time-overlap {
+            border: 1px solid var(--danger) !important;
+            background: rgba(239, 68, 68, 0.15) !important;
+        }
         .time-input:focus, .day-select:focus {
             border-color: var(--accent);
         }
@@ -199,8 +218,12 @@
             padding: 10px;
             border-bottom: 1px solid var(--border);
             font-size: 12px;
+            transition: all 0.2s;
         }
-        .video-list-item:last-child { border-bottom: none; }
+        .video-list-item.used {
+            opacity: 0.35;
+            background: rgba(0,0,0,0.2);
+        }
         .vid-num {
             background: var(--accent);
             color: white;
@@ -214,6 +237,9 @@
             font-size: 12px;
             flex-shrink: 0;
         }
+        .used .vid-num {
+            background: #475569;
+        }
         .vid-info { flex: 1; }
         .vid-dur { color: #38bdf8; font-family: monospace; font-size: 11px; }
 
@@ -221,11 +247,12 @@
             background: #2563eb;
             color: white;
             border: none;
-            padding: 8px 14px;
+            padding: 8px 12px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
             font-size: 12px;
+            transition: background 0.2s;
         }
         .btn:hover { background: #1d4ed8; }
         .btn-add { background: #10b981; }
@@ -233,14 +260,30 @@
         .btn-reset { background: #ef4444; }
         .btn-reset:hover { background: #dc2626; }
         .btn-del { background: #dc2626; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; border:none; }
+        .btn-shift { background: #334155; color: white; padding: 3px 6px; border-radius: 4px; font-size: 11px; cursor: pointer; border:none; margin: 0 1px; }
+        .btn-shift:hover { background: #475569; }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--danger);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            display: none;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div>
-                <h1>⚡ Custom Study Planner (A/L 2026)</h1>
-                <p>ඔබට කැමති දවසක්, Video ID එකක් සහ ආරම්භක වේලාවක් ඇතුළත් කර සැලැස්ම සාදාගන්න. අවසන් වූ විට Tick (✔️) කරන්න.</p>
+                <h1>⚡ Advanced Study Planner Pro (A/L 2026)</h1>
+                <p>Duplicate Prevention, Time Collision Warning, Auto Date Sorting, & Subject-Wise Progress Tracking</p>
             </div>
             <div class="controls">
                 <label style="font-size:13px; font-weight:bold;">Speed:</label>
@@ -250,36 +293,61 @@
                     <option value="1.5">1.5x Speed</option>
                 </select>
                 <button class="btn btn-add" onclick="addRow()">➕ පේළියක් එකතු කරන්න</button>
+                <button class="btn" onclick="sortRowsManually()" style="background:#8b5cf6;">↕️ දින අනුපිළිවෙලට Sort කරන්න</button>
                 <button class="btn btn-reset" onclick="clearPlanner()">🗑️ ඔක්කොම හිස් කරන්න</button>
             </div>
         </div>
 
-        <div class="progress-container">
-            <span style="font-size:14px; font-weight:bold;">📊 ප්‍රගතිය (Progress): <span id="progress-text" style="color:#10b981;">0 / 0</span></span>
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" id="progress-bar"></div>
+        <!-- SUBJECT WISE PROGRESS TRACKERS -->
+        <div class="progress-grid">
+            <div class="prog-card">
+                <div class="prog-header">
+                    <span>🎯 සමස්ත ප්‍රගතිය (All Subjects)</span>
+                    <span id="prog-all-text" style="color:#60a5fa;">0 / 19</span>
+                </div>
+                <div class="prog-bar-bg"><div class="prog-bar-fill fill-all" id="prog-all-bar"></div></div>
             </div>
-            <span id="progress-percent" style="font-size:14px; font-weight:bold; color:#60a5fa;">0%</span>
+            <div class="prog-card">
+                <div class="prog-header">
+                    <span>📐 Combined Maths</span>
+                    <span id="prog-maths-text" style="color:#60a5fa;">0 / 11</span>
+                </div>
+                <div class="prog-bar-bg"><div class="prog-bar-fill fill-maths" id="prog-maths-bar"></div></div>
+            </div>
+            <div class="prog-card">
+                <div class="prog-header">
+                    <span>⚛️ Physics</span>
+                    <span id="prog-physics-text" style="color:#34d399;">0 / 3</span>
+                </div>
+                <div class="prog-bar-bg"><div class="prog-bar-fill fill-physics" id="prog-physics-bar"></div></div>
+            </div>
+            <div class="prog-card">
+                <div class="prog-header">
+                    <span>🧪 Chemistry</span>
+                    <span id="prog-chem-text" style="color:#f87171;">0 / 5</span>
+                </div>
+                <div class="prog-bar-bg"><div class="prog-bar-fill fill-chem" id="prog-chem-bar"></div></div>
+            </div>
         </div>
 
         <div class="layout">
             <!-- LEFT: TIMETABLE -->
             <div class="card">
                 <div class="card-title">
-                    <span>📅 අධ්‍යයන කාලසටහන (Editable Timetable)</span>
-                    <span style="font-size: 12px; color: var(--text-sub);">Auto Save On</span>
+                    <span>📅 අධ්‍යයන කාලසටහන (Timetable)</span>
+                    <span style="font-size: 12px; color: var(--text-sub);">Auto Save & Validate Active</span>
                 </div>
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 40px; text-align:center;">Done</th>
-                            <th style="width: 170px;">දිනය (Date)</th>
-                            <th style="width: 55px;">ID</th>
+                            <th style="width: 35px; text-align:center;">Done</th>
+                            <th style="width: 165px;">දිනය (Date)</th>
+                            <th style="width: 50px;">ID</th>
                             <th>විෂය / වීඩියෝ මාතෘකාව</th>
-                            <th style="width: 110px;">ආරම්භය</th>
-                            <th style="width: 100px;">අවසානය</th>
-                            <th style="width: 75px;">කාලය</th>
-                            <th style="width: 40px;"></th>
+                            <th style="width: 95px;">ආරම්භය</th>
+                            <th style="width: 95px;">අවසානය</th>
+                            <th style="width: 70px;">කාලය</th>
+                            <th style="width: 70px; text-align:center;">Shift / Action</th>
                         </tr>
                     </thead>
                     <tbody id="timetable-body">
@@ -299,8 +367,12 @@
         </div>
     </div>
 
+    <div class="toast-msg" id="toast"></div>
+
     <script>
-        const videos = [{"id": 1, "title": "Combined Maths Revision රාමු සැකිලි", "subject": "Combined Maths", "dur_str": "04:09:51", "dur_sec": 14991}, {"id": 2, "title": "දෛශික", "subject": "Combined Maths", "dur_str": "04:12:06", "dur_sec": 15126}, {"id": 3, "title": "දෛශික පසුගිය විභාග රචනා ප්‍රශ්න සාකච්ඡාව", "subject": "Combined Maths", "dur_str": "02:31:16", "dur_sec": 9076}, {"id": 4, "title": "සන්ධි කළ දඩු", "subject": "Combined Maths", "dur_str": "04:08:14", "dur_sec": 14894}, {"id": 5, "title": "Combined Maths Rapid Revision (සීමාව / අභ්‍යුහන)", "subject": "Combined Maths", "dur_str": "03:34:33", "dur_sec": 12873}, {"id": 6, "title": "ද්විපද ප්‍රසාරණය 02 කොටස සහ ගෝල ගැටුම්", "subject": "Combined Maths", "dur_str": "03:38:42", "dur_sec": 13122}, {"id": 7, "title": "ගණිත අභ්‍යුහන මුලධර්මය 2 කොටස බල සමතුලිතතාවය", "subject": "Combined Maths", "dur_str": "03:59:41", "dur_sec": 14381}, {"id": 8, "title": "R.R Day 08 | බල ඝූර්ණය කාර්යය, ශක්තිය සහ ජවය", "subject": "Combined Maths", "dur_str": "03:41:43", "dur_sec": 13303}, {"id": 9, "title": "R.R Day 10 | නිව්ටන් නියම", "subject": "Combined Maths", "dur_str": "03:35:57", "dur_sec": 12957}, {"id": 10, "title": "R.R Day 14 | වෘත්ත චලිතය", "subject": "Combined Maths", "dur_str": "03:21:55", "dur_sec": 12115}, {"id": 11, "title": "R.R Day 13 | ශේෂ ප්‍රමේයය සහ සාධක ප්‍රමේයය", "subject": "Combined Maths", "dur_str": "03:05:01", "dur_sec": 11101}, {"id": 12, "title": "🔴 තාපය GUESS DAY 2026 | ANURADHA PERERA", "subject": "Physics", "dur_str": "07:03:06", "dur_sec": 25386}, {"id": 13, "title": "ක්ශේත්‍ර GUESS DAY 2026 | ANURADHA PERERA", "subject": "Physics", "dur_str": "04:31:19", "dur_sec": 16279}, {"id": 14, "title": "යාන්ත්‍ර විද්‍යාව GUESS DAY 2026 | ANURADHA PERERA", "subject": "Physics", "dur_str": "05:22:40", "dur_sec": 19360}, {"id": 15, "title": "2026 Physical Chemistry Day | Amila Dasanayake", "subject": "Chemistry", "dur_str": "09:41:22", "dur_sec": 34882}, {"id": 16, "title": "QBT - 3 වන ව්‍යූහගත රචනා ප්‍රශ්නය සදහා විශේෂ පුහුණුව", "subject": "Chemistry", "dur_str": "05:39:53", "dur_sec": 20393}, {"id": 17, "title": "QBT - ව්‍යුහගත රචනා 2 වන ප්‍රශ්නය සඳහා පුහුණුව", "subject": "Chemistry", "dur_str": "02:07:23", "dur_sec": 7643}, {"id": 18, "title": "2026 One Last Time | Organic නැවත මතක් කිරීම", "subject": "Chemistry", "dur_str": "09:05:23", "dur_sec": 32723}, {"id": 19, "title": "2026 One Last Time ආරම්භය | Amila Dasanayake", "subject": "Chemistry", "dur_str": "05:10:38", "dur_sec": 18638}];
+        const videos = [{"id": 1, "title": "Combined Maths Revision රාමු සැකිලි", "subject": "Combined Maths", "dur_str": "04:09:51", "dur_sec": 14991}, {"id": 2, "title": "දෛශික", "subject": "Combined Maths", "dur_str": "04:12:06", "dur_sec": 15126}, {"id": 3, "title": "දෛශික පසුගිය විභාග රචනා ප්‍රශ්න සාකඡ්ඡාව", "subject": "Combined Maths", "dur_str": "02:31:16", "dur_sec": 9076}, {"id": 4, "title": "සන්ධි කළ දඩු", "subject": "Combined Maths", "dur_str": "04:08:14", "dur_sec": 14894}, {"id": 5, "title": "Combined Maths Rapid Revision (සීමාව / අභ්‍යුහන)", "subject": "Combined Maths", "dur_str": "03:34:33", "dur_sec": 12873}, {"id": 6, "title": "ද්විපද ප්‍රසාරණය 02 කොටස සහ ගෝල ගැටුම්", "subject": "Combined Maths", "dur_str": "03:38:42", "dur_sec": 13122}, {"id": 7, "title": "ගණිත අභ්‍යුහන මුලධර්මය 2 කොටස බල සමතුලිතතාවය", "subject": "Combined Maths", "dur_str": "03:59:41", "dur_sec": 14381}, {"id": 8, "title": "R.R Day 08 | බල ඝූර්ණය කාර්යය, ශක්තිය සහ ජවය", "subject": "Combined Maths", "dur_str": "03:41:43", "dur_sec": 13303}, {"id": 9, "title": "R.R Day 10 | නිව්ටන් නියම", "subject": "Combined Maths", "dur_str": "03:35:57", "dur_sec": 12957}, {"id": 10, "title": "R.R Day 14 | වෘත්ත චලිතය", "subject": "Combined Maths", "dur_str": "03:21:55", "dur_sec": 12115}, {"id": 11, "title": "R.R Day 13 | ශේෂ ප්‍රමේයය සහ සාධක ප්‍රමේයය", "subject": "Combined Maths", "dur_str": "03:05:01", "dur_sec": 11101}, {"id": 12, "title": "🔴 තාපය GUESS DAY 2026 | ANURADHA PERERA", "subject": "Physics", "dur_str": "07:03:06", "dur_sec": 25386}, {"id": 13, "title": "ක්ශේත්‍ර GUESS DAY 2026 | ANURADHA PERERA", "subject": "Physics", "dur_str": "04:31:19", "dur_sec": 16279}, {"id": 14, "title": "යාන්ත්‍ර විද්‍යාව GUESS DAY 2026 | ANURADHA PERERA", "subject": "Physics", "dur_str": "05:22:40", "dur_sec": 19360}, {"id": 15, "title": "2026 Physical Chemistry Day | Amila Dasanayake", "subject": "Chemistry", "dur_str": "09:41:22", "dur_sec": 34882}, {"id": 16, "title": "QBT - 3 වන ව්‍යූහගත රචනා ප්‍රශ්නය සදහා විශේෂ පුහුණුව", "subject": "Chemistry", "dur_str": "05:39:53", "dur_sec": 20393}, {"id": 17, "title": "QBT - ව්‍යුහගත රචනා 2 වන ප්‍රශ්නය සඳහා පුහුණුව", "subject": "Chemistry", "dur_str": "02:07:23", "dur_sec": 7643}, {"id": 18, "title": "2026 One Last Time | Organic නැවත මතක් කිරීම", "subject": "Chemistry", "dur_str": "09:05:23", "dur_sec": 32723}, {"id": 19, "title": "2026 One Last Time ආරම්භය | Amila Dasanayake", "subject": "Chemistry", "dur_str": "05:10:38", "dur_sec": 18638}];
+        const presetData = [{"day": "අද - බ්‍රහස්පතින්දා (ජූලි 30)", "video_id": "14", "start": "20:00", "done": false}, {"day": "සිකුරාදා (ජූලි 31)", "video_id": "17", "start": "20:00", "done": false}, {"day": "සිකුරාදා (ජූලි 31)", "video_id": "5", "start": "22:30", "done": false}, {"day": "සෙනසුරාදා (අගෝ 01)", "video_id": "15", "start": "07:00", "done": false}, {"day": "සෙනසුරාදා (අගෝ 01)", "video_id": "10", "start": "04:00", "done": false}, {"day": "සෙනසුරාදා (අගෝ 01)", "video_id": "11", "start": "19:00", "done": false}];
+
         const daysList = [
             "අද - බ්‍රහස්පතින්දා (ජූලි 30)",
             "සිකුරාදා (ජූලි 31)",
@@ -313,25 +385,21 @@
             "ඊළඟ සිකුරාදා (අගෝ 07)"
         ];
 
-        // Default blank slots
-        function createBlankSlots() {
-            const slots = [];
-            for(let i = 0; i < 10; i++) {
-                slots.push({ day: daysList[0], video_id: "", start: "", done: false });
-            }
-            return slots;
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 3500);
         }
 
         function getPlannerData() {
-            const saved = localStorage.getItem('custom_user_study_plan_2026');
-            if (saved) {
-                return JSON.parse(saved);
-            }
-            return createBlankSlots();
+            const saved = localStorage.getItem('pro_study_plan_2026_v2');
+            if (saved) return JSON.parse(saved);
+            return presetData;
         }
 
         function savePlannerData(data) {
-            localStorage.setItem('custom_user_study_plan_2026', JSON.stringify(data));
+            localStorage.setItem('pro_study_plan_2026_v2', JSON.stringify(data));
         }
 
         function formatTime(totalMinutes) {
@@ -355,7 +423,7 @@
             return h * 60 + m;
         }
 
-        function renderVideoList() {
+        function renderVideoList(usedVideoIds) {
             const listContainer = document.getElementById('video-reference-list');
             listContainer.innerHTML = '';
             videos.forEach(v => {
@@ -363,12 +431,14 @@
                 if (v.subject === 'Physics') badgeClass = 'badge-physics';
                 else if (v.subject === 'Chemistry') badgeClass = 'badge-chem';
 
+                const isUsed = usedVideoIds.has(v.id);
+
                 const div = document.createElement('div');
-                div.className = 'video-list-item';
+                div.className = `video-list-item ${isUsed ? 'used' : ''}`;
                 div.innerHTML = `
                     <div class="vid-num">${v.id}</div>
                     <div class="vid-info">
-                        <div style="font-weight:bold; color:#f8fafc; margin-bottom:2px;">${v.title}</div>
+                        <div style="font-weight:bold; color:#f8fafc; margin-bottom:2px;">${v.title} ${isUsed ? '<span style="color:#10b981; font-size:10px;">(ඇතුළත් කර ඇත)</span>' : ''}</div>
                         <span class="badge ${badgeClass}">${v.subject}</span>
                         <span class="vid-dur">⏱️ ${v.dur_str}</span>
                     </div>
@@ -383,8 +453,23 @@
             const tbody = document.getElementById('timetable-body');
             tbody.innerHTML = '';
 
-            let totalAssigned = 0;
-            let completedCount = 0;
+            const usedVideoIds = new Set();
+            
+            // Progress Trackers Counters
+            let totalMaths = 11, doneMaths = 0;
+            let totalPhysics = 3, donePhysics = 0;
+            let totalChem = 5, doneChem = 0;
+            let totalAll = 19, doneAll = 0;
+
+            // Track time intervals per day to prevent overlap
+            const dayIntervals = {};
+
+            slots.forEach((slot, index) => {
+                const vidId = parseInt(slot.video_id, 10);
+                if (!isNaN(vidId)) {
+                    usedVideoIds.add(vidId);
+                }
+            });
 
             slots.forEach((slot, index) => {
                 const tr = document.createElement('tr');
@@ -395,16 +480,14 @@
 
                 let endTimeStr = '-';
                 let durStr = '-';
-                let titleDisplay = '<span style="color:#64748b;">(Video ID ඇතුළත් කරන්න)</span>';
+                let titleDisplay = '<span style="color:#64748b;">[Video ID ඇතුළත් කරන්න]</span>';
+                let isOverlap = false;
 
                 if (vid) {
-                    totalAssigned++;
-                    if (slot.done) completedCount++;
-
                     let badgeClass = 'badge-maths';
                     if (vid.subject === 'Physics') badgeClass = 'badge-physics';
                     else if (vid.subject === 'Chemistry') badgeClass = 'badge-chem';
-                    
+
                     titleDisplay = `<span class="badge ${badgeClass}">${vid.subject}</span> <span style="font-weight:500;">${vid.title}</span>`;
 
                     const durMinutes = (vid.dur_sec / 60) / speed;
@@ -416,10 +499,27 @@
                     if (startMins !== null) {
                         const endMins = startMins + durMinutes;
                         endTimeStr = formatTime(endMins);
+
+                        // Check Overlap for same day
+                        if (!dayIntervals[slot.day]) dayIntervals[slot.day] = [];
+                        for (let interval of dayIntervals[slot.day]) {
+                            if (Math.max(startMins, interval.start) < Math.min(endMins, interval.end)) {
+                                isOverlap = true;
+                                break;
+                            }
+                        }
+                        dayIntervals[slot.day].push({ start: startMins, end: endMins, index: index });
+                    }
+
+                    // Subject Wise Progress Calculation
+                    if (slot.done) {
+                        doneAll++;
+                        if (vid.subject === 'Combined Maths') doneMaths++;
+                        else if (vid.subject === 'Physics') donePhysics++;
+                        else if (vid.subject === 'Chemistry') doneChem++;
                     }
                 }
 
-                // Day dropdown options
                 let dayOptionsHtml = daysList.map(d => `<option value="${d}" ${slot.day === d ? 'selected' : ''}>${d}</option>`).join('');
 
                 tr.innerHTML = `
@@ -427,31 +527,81 @@
                         <input type="checkbox" ${slot.done ? 'checked' : ''} onchange="updateSlot(${index}, 'done', this.checked)">
                     </td>
                     <td>
-                        <select class="day-select" onchange="updateSlot(${index}, 'day', this.value)">
+                        <select class="day-select" onchange="updateSlotDay(${index}, this.value)">
                             ${dayOptionsHtml}
                         </select>
                     </td>
                     <td>
-                        <input type="number" class="id-input" value="${slot.video_id || ''}" min="1" max="19" placeholder="ID" onchange="updateSlot(${index}, 'video_id', this.value)">
+                        <input type="number" class="id-input" value="${slot.video_id || ''}" min="1" max="19" placeholder="ID" onchange="updateSlotVideoId(${index}, this.value)">
                     </td>
                     <td>${titleDisplay}</td>
                     <td>
-                        <input type="time" class="time-input" value="${slot.start || ''}" onchange="updateSlot(${index}, 'start', this.value)">
+                        <input type="time" class="time-input ${isOverlap ? 'time-overlap' : ''}" value="${slot.start || ''}" onchange="updateSlotTime(${index}, this.value)">
+                        ${isOverlap ? '<div style="color:#ef4444; font-size:10px; font-weight:bold;">⚠️ වෙලාවන් සමපාත වේ</div>' : ''}
                     </td>
                     <td style="font-weight:bold; color:#38bdf8; font-family:monospace;">${endTimeStr}</td>
                     <td style="color:#94a3b8; font-family:monospace;">${durStr}</td>
-                    <td>
+                    <td style="text-align:center;">
+                        <button class="btn-shift" onclick="shiftRow(${index}, -1)" title="ඉහලට කරන්න">⬆️</button>
+                        <button class="btn-shift" onclick="shiftRow(${index}, 1)" title="පහලට කරන්න">⬇️</button>
                         <button class="btn-del" onclick="deleteRow(${index})" title="පේළිය මකන්න">❌</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            // Update Progress Bar
-            const percent = totalAssigned > 0 ? Math.round((completedCount / totalAssigned) * 100) : 0;
-            document.getElementById('progress-text').innerText = `${completedCount} / ${totalAssigned} වීඩියෝ`;
-            document.getElementById('progress-percent').innerText = `${percent}%`;
-            document.getElementById('progress-bar').style.width = `${percent}%`;
+            // UPDATE PROGRESS BARS
+            updateProgBar('prog-all', doneAll, totalAll);
+            updateProgBar('prog-maths', doneMaths, totalMaths);
+            updateProgBar('prog-physics', donePhysics, totalPhysics);
+            updateProgBar('prog-chem', doneChem, totalChem);
+
+            renderVideoList(usedVideoIds);
+        }
+
+        function updateProgBar(idPrefix, done, total) {
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            document.getElementById(`${idPrefix}-text`).innerText = `${done} / ${total} (${pct}%)`;
+            document.getElementById(`${idPrefix}-bar`).style.width = `${pct}%`;
+        }
+
+        function updateSlotVideoId(index, val) {
+            const slots = getPlannerData();
+            const newId = parseInt(val, 10);
+
+            if (!isNaN(newId)) {
+                // Duplicate Video Check
+                const duplicateIndex = slots.findIndex((s, i) => i !== index && parseInt(s.video_id, 10) === newId);
+                if (duplicateIndex !== -1) {
+                    showToast(`⚠️ Video ID #${newId} එක මේ වන විටත් වෙනත් දිනයක ඇතුළත් කර ඇත! එකම වීඩියෝව දෙපාරක් ඇතුළත් කළ නොහැක.`);
+                    renderTimetable();
+                    return;
+                }
+            }
+
+            slots[index].video_id = val;
+            savePlannerData(slots);
+            renderTimetable();
+        }
+
+        function updateSlotTime(index, val) {
+            const slots = getPlannerData();
+            slots[index].start = val;
+            savePlannerData(slots);
+            renderTimetable();
+        }
+
+        function updateSlotDay(index, val) {
+            const slots = getPlannerData();
+            slots[index].day = val;
+
+            // Auto Sort by Date Index after day change
+            slots.sort((a, b) => {
+                return daysList.indexOf(a.day) - daysList.indexOf(b.day);
+            });
+
+            savePlannerData(slots);
+            renderTimetable();
         }
 
         function updateSlot(index, field, val) {
@@ -459,6 +609,33 @@
             slots[index][field] = val;
             savePlannerData(slots);
             renderTimetable();
+        }
+
+        function shiftRow(index, direction) {
+            const slots = getPlannerData();
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= slots.length) return;
+            
+            const temp = slots[index];
+            slots[index] = slots[newIndex];
+            slots[newIndex] = temp;
+
+            savePlannerData(slots);
+            renderTimetable();
+        }
+
+        function sortRowsManually() {
+            const slots = getPlannerData();
+            slots.sort((a, b) => {
+                const dayDiff = daysList.indexOf(a.day) - daysList.indexOf(b.day);
+                if (dayDiff !== 0) return dayDiff;
+                const timeA = parseStartTime(a.start) || 0;
+                const timeB = parseStartTime(b.start) || 0;
+                return timeA - timeB;
+            });
+            savePlannerData(slots);
+            renderTimetable();
+            showToast("✅ දින සහ වෙලාවන් අනුපිළිවෙලට පේළි සැකසිණි!");
         }
 
         function addRow() {
@@ -477,12 +654,11 @@
 
         function clearPlanner() {
             if (confirm('සියලුම ඇතුළත් කිරීම් හිස් කර මුල සිටම සකස් කිරීමට අවශ්‍යද?')) {
-                savePlannerData(createBlankSlots());
+                savePlannerData([]);
                 renderTimetable();
             }
         }
 
-        renderVideoList();
         renderTimetable();
     </script>
 </body>
